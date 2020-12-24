@@ -14,3 +14,8 @@ input Login {
   email: String!
   password: String!
 }
+
+type LoginResult {
+  token: String!
+  user: User!
+}

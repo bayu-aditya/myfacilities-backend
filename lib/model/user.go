@@ -29,9 +29,21 @@ func (User) Collection() *mongo.Collection {
 	return service.MongoDB.Collection(variable.Collection.User)
 }
 
-// FindByEmail and handle error
-func (u *User) FindByEmail(email string) error {
-	return u.Collection().FindOne(context.Background(), bson.M{"email": email}).Decode(u)
+// FindByID and return status found
+func (u *User) FindByID(id string) (found bool) {
+	empty := User{}
+
+	objectID, _ := primitive.ObjectIDFromHex(id)
+	u.Collection().FindOne(context.Background(), bson.M{"_id": objectID}).Decode(u)
+	return !(*u == empty)
+}
+
+// FindByEmail and return status found
+func (u *User) FindByEmail(email string) (found bool) {
+	empty := User{}
+
+	u.Collection().FindOne(context.Background(), bson.M{"email": email}).Decode(u)
+	return !(*u == empty)
 }
 
 // Create User to MongoDB

@@ -10,6 +10,7 @@ import (
 	"github.com/bayu-aditya/myfacilities-backend/graph/model"
 	AuthCtrl "github.com/bayu-aditya/myfacilities-backend/lib/controller/auth"
 	UserCtrl "github.com/bayu-aditya/myfacilities-backend/lib/controller/user"
+	"github.com/bayu-aditya/myfacilities-backend/lib/middleware"
 )
 
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (*model.User, error) {
@@ -17,10 +18,14 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) 
 }
 
 func (r *queryResolver) User(ctx context.Context) (*model.User, error) {
+	if err := middleware.AuthorizationRequired(ctx); err != nil {
+		return nil, err
+	}
+
 	return UserCtrl.Get(ctx)
 }
 
-func (r *queryResolver) Login(ctx context.Context, input model.Login) (*model.User, error) {
+func (r *queryResolver) Login(ctx context.Context, input model.Login) (*model.LoginResult, error) {
 	return AuthCtrl.Login(ctx, &input)
 }
 

@@ -7,6 +7,11 @@ type Login struct {
 	Password string `json:"password"`
 }
 
+type LoginResult struct {
+	Token string `json:"token"`
+	User  *User  `json:"user"`
+}
+
 type NewUser struct {
 	Name     string `json:"name"`
 	Email    string `json:"email"`

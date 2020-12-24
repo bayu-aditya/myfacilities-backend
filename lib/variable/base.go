@@ -8,11 +8,21 @@ import (
 
 // Project variable
 var Project struct {
-	Mode   string
+	Mode string
+	JWT  struct {
+		Key string
+	}
 	Crypto struct {
 		Key string
 		IV  string
 	}
+}
+
+// JwtClaims structure
+type JwtClaims struct {
+	UserID string
+	Email  string
+	Exp    int64
 }
 
 // Mongo variable
@@ -32,6 +42,7 @@ func InitializationVariableEnvironment() {
 	log.Println("Start reading variable environment")
 
 	Project.Mode = os.Getenv("MODE")
+	Project.JWT.Key = os.Getenv("JWT_KEY")
 	Project.Crypto.Key = os.Getenv("CRYPTO_KEY") // TODO length must be 32
 	Project.Crypto.IV = os.Getenv("CRYPTO_IV")   // TODO length must be 16
 
