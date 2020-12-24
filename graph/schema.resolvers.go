@@ -10,6 +10,7 @@ import (
 	"github.com/bayu-aditya/myfacilities-backend/graph/generated"
 	"github.com/bayu-aditya/myfacilities-backend/graph/model"
 	AuthCtrl "github.com/bayu-aditya/myfacilities-backend/lib/controller/auth"
+	OrganizationCtrl "github.com/bayu-aditya/myfacilities-backend/lib/controller/organization"
 	UserCtrl "github.com/bayu-aditya/myfacilities-backend/lib/controller/user"
 	"github.com/bayu-aditya/myfacilities-backend/lib/middleware"
 )
@@ -19,7 +20,11 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) 
 }
 
 func (r *mutationResolver) CreateOrganization(ctx context.Context, input model.NewOrganization) (*model.Organization, error) {
-	panic(fmt.Errorf("not implemented"))
+	if err := middleware.AuthorizationRequired(ctx); err != nil {
+		return nil, err
+	}
+
+	return OrganizationCtrl.Create(ctx, &input)
 }
 
 func (r *mutationResolver) EditOrganization(ctx context.Context, input model.EditOrganization) (*model.Organization, error) {
@@ -63,7 +68,11 @@ func (r *queryResolver) Organizations(ctx context.Context) ([]*model.Organizatio
 }
 
 func (r *queryResolver) Organization(ctx context.Context, id string) (*model.Organization, error) {
-	panic(fmt.Errorf("not implemented"))
+	if err := middleware.AuthorizationRequired(ctx); err != nil {
+		return nil, err
+	}
+
+	return OrganizationCtrl.GetByID(ctx, &id)
 }
 
 // Mutation returns generated.MutationResolver implementation.
