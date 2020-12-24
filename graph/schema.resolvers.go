@@ -5,6 +5,7 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/bayu-aditya/myfacilities-backend/graph/generated"
 	"github.com/bayu-aditya/myfacilities-backend/graph/model"
@@ -17,6 +18,30 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) 
 	return UserCtrl.Create(ctx, &input)
 }
 
+func (r *mutationResolver) CreateOrganization(ctx context.Context, input model.NewOrganization) (*model.Organization, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *mutationResolver) EditOrganization(ctx context.Context, input model.EditOrganization) (*model.Organization, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *mutationResolver) DeleteOrganization(ctx context.Context, id string) (*model.ResponseCode, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *mutationResolver) InviteUserOrganization(ctx context.Context, id string, userID string, role model.RoleUserInOrganization) (*model.Organization, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *mutationResolver) ChangeRoleUserOrganization(ctx context.Context, id string, userID string, role model.RoleUserInOrganization) (*model.Organization, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *queryResolver) Login(ctx context.Context, input model.Login) (*model.LoginResult, error) {
+	return AuthCtrl.Login(ctx, &input)
+}
+
 func (r *queryResolver) User(ctx context.Context) (*model.User, error) {
 	if err := middleware.AuthorizationRequired(ctx); err != nil {
 		return nil, err
@@ -25,8 +50,20 @@ func (r *queryResolver) User(ctx context.Context) (*model.User, error) {
 	return UserCtrl.Get(ctx)
 }
 
-func (r *queryResolver) Login(ctx context.Context, input model.Login) (*model.LoginResult, error) {
-	return AuthCtrl.Login(ctx, &input)
+func (r *queryResolver) UserByEmail(ctx context.Context, email string) (*model.User, error) {
+	if err := middleware.AuthorizationRequired(ctx); err != nil {
+		return nil, err
+	}
+
+	return UserCtrl.GetByEmail(ctx, &email)
+}
+
+func (r *queryResolver) Organizations(ctx context.Context) ([]*model.Organization, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *queryResolver) Organization(ctx context.Context, id string) (*model.Organization, error) {
+	panic(fmt.Errorf("not implemented"))
 }
 
 // Mutation returns generated.MutationResolver implementation.

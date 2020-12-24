@@ -23,3 +23,16 @@ func Get(ctx context.Context) (*gmodel.User, error) {
 
 	return user.Convert2GraphModel(), nil
 }
+
+// GetByEmail for user information
+func GetByEmail(ctx context.Context, email *string) (*gmodel.User, error) {
+	c, _ := middleware.GinContextFromContext(ctx)
+
+	user := new(model.User)
+	if found := user.FindByEmail(*email); found == false {
+		c.AbortWithStatus(http.StatusNotFound)
+		return nil, errors.New("user not found")
+	}
+
+	return user.Convert2GraphModel(), nil
+}

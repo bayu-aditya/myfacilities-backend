@@ -2,11 +2,27 @@
 #
 # https://gqlgen.com/getting-started/
 
+type ResponseCode {
+  statusCode: Int!
+  message: String!
+}
+
 type Query {
-  user: User!
   login(input: Login!): LoginResult!
+  user: User!
+  userByEmail(email: String!): User!
+# --------------------------------------------------------
+  organizations: [Organization!]!
+  organization(id: String!): Organization!
 }
 
 type Mutation {
   createUser(input: NewUser!): User!
+# --------------------------------------------------------
+  createOrganization(input: NewOrganization!): Organization!
+  editOrganization(input: EditOrganization!): Organization!
+  deleteOrganization(id: String!): ResponseCode!
+
+  inviteUserOrganization(id: String!, userID: String!, role: RoleUserInOrganization!): Organization!
+  changeRoleUserOrganization(id: String!, userID: String!, role: RoleUserInOrganization!): Organization!
 }

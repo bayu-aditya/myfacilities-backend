@@ -1,0 +1,20 @@
+type Organization {
+  id: String!
+  name: String!
+  admins: [String!]!
+  members: [String!]!
+}
+
+input NewOrganization {
+  name: String!
+}
+
+input EditOrganization {
+  id: String!
+  name: String!
+}
+
+enum RoleUserInOrganization {
+  Admin
+  Member
+}
