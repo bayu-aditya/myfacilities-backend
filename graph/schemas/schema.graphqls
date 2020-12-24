@@ -4,6 +4,7 @@
 
 type Query {
   user: User!
+  login(input: Login!): User!
 }
 
 type Mutation {

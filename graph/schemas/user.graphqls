@@ -7,4 +7,10 @@ type User {
 input NewUser {
   name: String!
   email: String!
+  password: String!
+}
+
+input Login {
+  email: String!
+  password: String!
 }

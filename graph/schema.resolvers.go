@@ -8,6 +8,7 @@ import (
 
 	"github.com/bayu-aditya/myfacilities-backend/graph/generated"
 	"github.com/bayu-aditya/myfacilities-backend/graph/model"
+	AuthCtrl "github.com/bayu-aditya/myfacilities-backend/lib/controller/auth"
 	UserCtrl "github.com/bayu-aditya/myfacilities-backend/lib/controller/user"
 )
 
@@ -17,6 +18,10 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) 
 
 func (r *queryResolver) User(ctx context.Context) (*model.User, error) {
 	return UserCtrl.Get(ctx)
+}
+
+func (r *queryResolver) Login(ctx context.Context, input model.Login) (*model.User, error) {
+	return AuthCtrl.Login(ctx, &input)
 }
 
 // Mutation returns generated.MutationResolver implementation.

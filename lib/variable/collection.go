@@ -2,7 +2,7 @@ package variable
 
 // Collection Name in MongoDB
 var Collection = struct {
-	user string
+	User string
 }{
-	user: "user",
+	User: "user",
 }

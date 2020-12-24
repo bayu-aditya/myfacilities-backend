@@ -8,7 +8,11 @@ import (
 
 // Project variable
 var Project struct {
-	Mode string
+	Mode   string
+	Crypto struct {
+		Key string
+		IV  string
+	}
 }
 
 // Mongo variable
@@ -28,6 +32,8 @@ func InitializationVariableEnvironment() {
 	log.Println("Start reading variable environment")
 
 	Project.Mode = os.Getenv("MODE")
+	Project.Crypto.Key = os.Getenv("CRYPTO_KEY") // TODO length must be 32
+	Project.Crypto.IV = os.Getenv("CRYPTO_IV")   // TODO length must be 16
 
 	switch Project.Mode {
 	case "development":
