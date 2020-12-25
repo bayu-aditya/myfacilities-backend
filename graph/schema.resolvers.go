@@ -36,7 +36,11 @@ func (r *mutationResolver) DeleteOrganization(ctx context.Context, id string) (*
 }
 
 func (r *mutationResolver) InviteUserOrganization(ctx context.Context, id string, userID string, role model.RoleUserInOrganization) (*model.Organization, error) {
-	panic(fmt.Errorf("not implemented"))
+	if err := middleware.AuthorizationRequired(ctx); err != nil {
+		return nil, err
+	}
+
+	return OrganizationCtrl.InviteUser(ctx, &id, &userID, &role)
 }
 
 func (r *mutationResolver) ChangeRoleUserOrganization(ctx context.Context, id string, userID string, role model.RoleUserInOrganization) (*model.Organization, error) {
@@ -64,7 +68,11 @@ func (r *queryResolver) UserByEmail(ctx context.Context, email string) (*model.U
 }
 
 func (r *queryResolver) Organizations(ctx context.Context) ([]*model.Organization, error) {
-	panic(fmt.Errorf("not implemented"))
+	if err := middleware.AuthorizationRequired(ctx); err != nil {
+		return nil, err
+	}
+
+	return OrganizationCtrl.Get(ctx)
 }
 
 func (r *queryResolver) Organization(ctx context.Context, id string) (*model.Organization, error) {
