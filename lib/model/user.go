@@ -29,21 +29,38 @@ func (User) Collection() *mongo.Collection {
 	return service.MongoDB.Collection(variable.Collection.User)
 }
 
+// Where for create single bsonE query
+func (u *User) Where(key string) *User {
+	u.tempQueryE.Key = key
+	return u
+}
+
+// Is for Where method
+func (u *User) Is(value interface{}) *User {
+	u.tempQueryE.Value = value
+
+	u.appendFindQueryD(u.tempQueryE)
+	u.tempQueryE = bson.E{}
+	return u
+}
+
 // FindByID and return status found
 func (u *User) FindByID(id string) (found bool) {
-	empty := User{}
-
 	objectID, _ := primitive.ObjectIDFromHex(id)
-	u.Collection().FindOne(context.Background(), bson.M{"_id": objectID}).Decode(u)
-	return !(*u == empty)
+
+	u.Where("_id").Is(objectID)
+	err := u.Collection().FindOne(context.Background(), u.findQueryD).Decode(u)
+
+	// err := u.Collection().FindOne(context.Background(), bson.M{"_id": objectID}).Decode(u)
+	return u.IsDocumentFound(err)
 }
 
 // FindByEmail and return status found
 func (u *User) FindByEmail(email string) (found bool) {
-	empty := User{}
-
-	u.Collection().FindOne(context.Background(), bson.M{"email": email}).Decode(u)
-	return !(*u == empty)
+	u.Where("email").Is(email)
+	err := u.Collection().FindOne(context.Background(), u.findQueryD).Decode(u)
+	// err := u.Collection().FindOne(context.Background(), bson.M{"email": email}).Decode(u)
+	return u.IsDocumentFound(err)
 }
 
 // Create User to MongoDB

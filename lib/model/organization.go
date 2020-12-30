@@ -15,14 +15,14 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-// OrganizationQuery for MongoDB
-type OrganizationQuery struct {
+// MultipleOrganizations for MongoDB
+type MultipleOrganizations struct {
 	model Organization
 }
 
-// GetOrganizations for this user
+// GetByUser for this user
 // either as admin or member
-func (q *OrganizationQuery) GetOrganizations(user *User) []*Organization {
+func (q *MultipleOrganizations) GetByUser(user *User) []*Organization {
 	var result []*Organization
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -42,7 +42,7 @@ func (q *OrganizationQuery) GetOrganizations(user *User) []*Organization {
 		},
 	)
 	if err != nil {
-		log.Panicf("Error model.OrganizationQuery.GetOrganizations: %s \n", err)
+		log.Panicf("Error model.MultipleOrganizations.GetByUser: %s \n", err)
 	}
 	defer cur.Close(ctx)
 
@@ -68,17 +68,28 @@ func (Organization) Collection() *mongo.Collection {
 	return service.MongoDB.Collection(variable.Collection.Organization)
 }
 
+// Where for create single bsonE query
+func (o *Organization) Where(key string) *Organization {
+	o.tempQueryE.Key = key
+	return o
+}
+
+// Is for Where method
+func (o *Organization) Is(value interface{}) *Organization {
+	o.tempQueryE.Value = value
+
+	o.appendFindQueryD(o.tempQueryE)
+	o.tempQueryE = bson.E{}
+	return o
+}
+
 // FindByID for organization
 func (o *Organization) FindByID(id string) (found bool) {
 	objectID, _ := primitive.ObjectIDFromHex(id)
-	err := o.Collection().FindOne(context.Background(), bson.M{"_id": objectID}).Decode(o)
-	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return false
-		}
-		log.Panicln("Error: model.Organization.FindByID")
-	}
-	return true
+
+	o.Where("_id").Is(objectID)
+	err := o.Collection().FindOne(context.Background(), o.getFindQueryDAndClear()).Decode(o)
+	return o.IsDocumentFound(err)
 }
 
 // Create organization by user
@@ -112,57 +123,38 @@ func (o *Organization) AddAdmin(adminUser *User, targetUser *User) error {
 	return o.Collection().FindOneAndUpdate(
 		context.Background(),
 		bson.M{"_id": o.ID},
-		bson.M{"$push": bson.M{"admins": targetUser.ID}},
-	).Decode(o)
+		bson.M{"$addToSet": bson.M{"admins": targetUser.ID}},
+	).Err()
 }
 
 // IsAdmin checker for user in this organization
 func (o *Organization) IsAdmin(user *User) bool {
-	err := o.Collection().FindOne(
-		context.Background(),
-		bson.D{
-			{Key: "_id", Value: o.ID},
-			{Key: "admins", Value: bson.M{
-				"$in": bson.A{user.ID},
-			}},
-		},
-	).Err()
+	o.Where("_id").Is(o.ID)
+	o.Where("admins").Is(bson.M{"$in": bson.A{user.ID}})
 
-	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return false
-		}
-		log.Println("Error model.Organization.IsAdmin")
-	}
+	err := o.Collection().FindOne(context.Background(), o.getFindQueryDAndClear()).Err()
+	return o.IsDocumentFound(err)
+}
 
-	return true
+// IsMember checker for user in this organization
+func (o *Organization) IsMember(user *User) bool {
+	o.Where("_id").Is(o.ID)
+	o.Where("members").Is(bson.M{"$in": bson.A{user.ID}})
+
+	err := o.Collection().FindOne(context.Background(), o.getFindQueryDAndClear()).Err()
+	return o.IsDocumentFound(err)
 }
 
 // IsUserContain this organization?
 func (o *Organization) IsUserContain(user *User) bool {
-	err := o.Collection().FindOne(
-		context.Background(),
-		bson.D{
-			{Key: "_id", Value: o.ID},
-			{Key: "$or", Value: bson.A{
-				bson.M{"admins": bson.M{
-					"$in": bson.A{user.ID},
-				}},
-				bson.M{"members": bson.M{
-					"$in": bson.A{user.ID},
-				}},
-			}},
-		},
-	).Err()
+	o.Where("_id").Is(o.ID)
+	o.Where("$or").Is(bson.A{
+		bson.M{"admins": bson.M{"$in": bson.A{user.ID}}},
+		bson.M{"members": bson.M{"$in": bson.A{user.ID}}},
+	})
 
-	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return false
-		}
-		log.Println("Error model.Organization.IsUserContain")
-	}
-
-	return true
+	err := o.Collection().FindOne(context.Background(), o.getFindQueryDAndClear()).Err()
+	return o.IsDocumentFound(err)
 }
 
 // Convert2GraphModel for graphql

@@ -21,8 +21,8 @@ func Get(ctx context.Context) ([]*gmodel.Organization, error) {
 		return nil, errors.New("user not found")
 	}
 
-	query := new(model.OrganizationQuery)
-	organizations := query.GetOrganizations(user)
+	query := new(model.MultipleOrganizations)
+	organizations := query.GetByUser(user)
 
 	var resp []*gmodel.Organization
 	for _, org := range organizations {
